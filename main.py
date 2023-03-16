@@ -3,21 +3,12 @@ from __future__ import annotations
 from pprint import pprint
 
 
-class SudokuException(Exception):
-    pass
-
-
-class SizeSudokuException(SudokuException):
-    pass
-
-
 class Pole:
-    def __init__(self, strings: str = None, size: int = 9):
-        self.pole = []
-        self.size = size
-        self.strings = strings
+    def __init__(self, strings: str):
+        self.pole = []  # само двухмерное поле с экземплярами класса Cell
+        self.pole_size = 9  # размер поля
+        self.strings = strings  # входные данные в формате строк / должна быть форматом 3*3
         self.solve = False
-        print(self.strings)
         if self.strings:
             self.init_pole(self.strings)
 
@@ -33,8 +24,6 @@ class Pole:
 
         # Формируем поле и закладываем в него объекты класса Cell со значением клетки
         for row, i in enumerate(self.pole):
-            if len(i) != self.size:
-                raise SizeSudokuException("invalid sudoku size")
             for cow, j in enumerate(i):
                 self.pole[row][cow] = Cell(self.pole[row][cow])
 
@@ -73,8 +62,8 @@ class Pole:
 
             # Для каждого столбца
             for row, _ in enumerate(self.pole):
-                value = [self.pole[col][row].value for col in range(self.size) if self.pole[col][row].value]
-                for col in range(self.size):
+                value = [self.pole[col][row].value for col in range(self.pole_size) if self.pole[col][row].value]
+                for col in range(self.pole_size):
                     self.pole[col][row].update_possible_values(value)
 
             # для каждой ячейки 3*3
@@ -84,7 +73,7 @@ class Pole:
                     self.pole[row][col].update_possible_values(value)
 
             # цикл останавливаеться если все разгадано
-            if len(self) == self.size ** 2:
+            if len(self) == self.pole_size ** 2:
                 self.solve = True
                 break
             # цикл останавливаеться в случае если изменений не произошло
@@ -102,30 +91,57 @@ class Pole:
 
 
 class Cell:
-    def __init__(self, value: int = 0):
-        # self.x = x
-        # self.y = y
-        self.value = value
-        if not self.value:
-            self.possible_values = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-        else:
-            self.possible_values = None
+    """
+    A class representing a sudoku cell.
 
-    def check_value(self):
-        # проверяет, если у клетки всего одно возможное значение, то подставляет его в self.value
+    Attributes:
+    value (int): the value of the cell.
+    possible_values (list): list of possible cell values. Empty if value is defined.
+    """
+
+    def __init__(self, value: int = 0) -> None:
+        self.value = value
+        self.possible_values = self._get_possible_values()
+
+    def _get_possible_values(self) -> list:
+        """
+        Возвращает список возможных значений клетки, если само значение не определено.
+        Если Value определено, то возвращает пустой список.
+        """
+        if not self.value:
+            possible_values = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        else:
+            possible_values = []
+        return possible_values
+
+    def check_value(self) -> None:
+        """
+        Проверяет если у клетки всего одно возможное значение (possible_values), то подставляет его в self.value.
+        """
         if self.possible_values and len(self.possible_values) == 1:
             self.value = self.possible_values[0]
-            self.possible_values = None
+            self.possible_values = []
 
-    def update_possible_values(self, args):
+    def update_possible_values(self, args: list) -> None:
+        """
+        Обновляет self.possible_values, удаляя значения из переданного списка и вызывает check_value.
+        """
         if self.possible_values:
-            for arg in args:
-                if arg in self.possible_values:
-                    self.possible_values.remove(arg)
+            self.possible_values = [value for value in self.possible_values if value not in args]
+
         self.check_value()
 
     def __repr__(self):
         return str(self.value) if self.value else " "
+
+
+# Exception #############################
+class SudokuException(Exception):
+    pass
+
+
+class SizeSudokuException(SudokuException):
+    pass
 
 
 if __name__ == "__main__":
