@@ -154,5 +154,17 @@ if __name__ == "__main__":
 000928000
 409000105
 008400962"""
+    test_sudoku2 = """005300000
+800000020
+070010500
+400005300
+010070006
+003200080
+060500009
+004000030
+000009700"""
     pole = Pole(test_sudoku)
-    pole.solve_sudoku()
+    pole2 = Pole(test_sudoku2)
+    poles = [pole, pole2]
+    for pole in poles:
+        pole.solve_sudoku()
