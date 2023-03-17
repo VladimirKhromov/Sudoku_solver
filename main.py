@@ -1,9 +1,9 @@
-from __future__ import annotations
+# from __future__ import annotations
 
 from pprint import pprint
 
 
-class Pole:
+class Field:
     def __init__(self, strings: str):
         self.pole = []  # само двухмерное поле с экземплярами класса Cell
         self.pole_size = 9  # размер поля
@@ -37,10 +37,8 @@ class Pole:
                     len_sudoku += 1
         return len_sudoku
 
-    def __udpade_row(self, values: list):
-        pass
-
-    def solve_sudoku(self):
+    def fill(self):
+        """Метод заполняет поле возможными значениями."""
 
         # формируем координаты ячеек для поля 3*3
         list_cells = []
@@ -82,12 +80,7 @@ class Pole:
             else:
                 actual_len = len(self)
 
-            # Step 2. если решить на шаге 1 не получилось, переходим к перебору значений
-
-            # TODO
-
         self.show()
-        print(len(self))
 
 
 class Cell:
@@ -100,8 +93,14 @@ class Cell:
     """
 
     def __init__(self, value: int = 0) -> None:
+        self.__check_value(value)
         self.value = value
         self.possible_values = self._get_possible_values()
+
+    @staticmethod
+    def __check_value(value):
+        if value not in range(0, 10):  # note: 0 - empty
+            raise ValueCellSudokuException
 
     def _get_possible_values(self) -> list:
         """
@@ -140,31 +139,38 @@ class SudokuException(Exception):
     pass
 
 
+class ValueCellSudokuException(SudokuException):
+    pass
+
+
 class SizeSudokuException(SudokuException):
     pass
 
 
 if __name__ == "__main__":
-    test_sudoku = """000000027
-050030609
-080070000
-030000400
-005090008
-096200703
-000928000
-409000105
-008400962"""
-    test_sudoku2 = """005300000
-800000020
-070010500
-400005300
-010070006
-003200080
-060500009
-004000030
-000009700"""
-    pole = Pole(test_sudoku)
-    pole2 = Pole(test_sudoku2)
-    poles = [pole, pole2]
-    for pole in poles:
-        pole.solve_sudoku()
+    c = Cell()
+    c1 = Cell(4)
+    c2 = Cell(2)
+#     test_sudoku = """000000027
+# 050030609
+# 080070000
+# 030000400
+# 005090008
+# 096200703
+# 000928000
+# 409000105
+# 008400962"""
+#     test_sudoku2 = """005300000
+# 800000020
+# 070010500
+# 400005300
+# 010070006
+# 003200080
+# 060500009
+# 004000030
+# 000007000"""
+#     pole = Field(test_sudoku)
+#     pole2 = Field(test_sudoku2)
+#     poles = [pole, pole2]
+#     for pole in poles:
+#         pole.fill()
