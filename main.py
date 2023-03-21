@@ -2,6 +2,7 @@
 
 from pprint import pprint
 
+from cell import Cell
 
 class Field:
     def __init__(self, strings: str):
@@ -10,12 +11,12 @@ class Field:
         self.strings = strings  # входные данные в формате строк / должна быть форматом 3*3
         self.solve = False
         if self.strings:
-            self.init_pole(self.strings)
+            self.init_field(self.strings)
 
     def show(self):
         pprint(self.pole)
 
-    def init_pole(self, strings: str):
+    def init_field(self, strings: str):
         """Инициализация поля"""
         self.pole.clear()  # Очищаем предыдущие значения
         # Формируем поле из цифр
@@ -37,15 +38,28 @@ class Field:
                     len_sudoku += 1
         return len_sudoku
 
-    def fill(self):
-        """Метод заполняет поле возможными значениями."""
+    def is_solve(self):
+        if len(self) == self.pole_size ** 2 and not self.is_collision():
+            self.solve = True
 
-        # формируем координаты ячеек для поля 3*3
+        return self.solve
+
+
+    @staticmethod
+    def get_list_cells() -> list:
+        """ формируем координаты ячеек для поля 3*3 """
         list_cells = []
         for i in (0, 3, 6):
             for j in (0, 3, 6):
                 cells = [(i + ii, j + jj) for ii in (0, 1, 2) for jj in (0, 1, 2)]
                 list_cells.append(cells)
+        return list_cells
+
+    def fill(self):
+        """Метод заполняет поле возможными значениями."""
+
+        # формируем координаты ячеек для поля 3*3
+        list_cells = self.get_list_cells()
 
         actual_len = len(self)
         while not self.solve:
@@ -71,85 +85,48 @@ class Field:
                     self.pole[row][col].update_possible_values(value)
 
             # цикл останавливаеться если все разгадано
-            if len(self) == self.pole_size ** 2:
-                self.solve = True
-                break
+            self.is_solve()
+
             # цикл останавливаеться в случае если изменений не произошло
-            elif len(self) == actual_len:
+            if len(self) == actual_len:
                 break
             else:
                 actual_len = len(self)
 
         self.show()
+        print(len(self))
 
-
-class Cell:
-    """
-    A class representing a sudoku cell.
-
-    Attributes:
-    value (int): the value of the cell.
-    possible_values (list): list of possible cell values. Empty if value is defined.
-    """
-
-    def __init__(self, value: int = 0) -> None:
-        self._value = value
-        self.possible_values = self._get_possible_values()
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, new_value: int):
-        if new_value in range(0, 10):
-            self._value = new_value
-        else:
-            raise ValueCellSudokuException
-
-    def _get_possible_values(self) -> list:
+    def is_collision(self):
         """
-        Возвращает список возможных значений клетки, если само значение не определено.
-        Если Value определено, то возвращает пустой список.
+        Проверяет наличие коллизий (одинаковых значений) при решение судоку.
+        возвращает True если коллизии есть, False если коллизий нет.
         """
-        if not self.value:
-            possible_values = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-        else:
-            possible_values = []
-        return possible_values
 
-    def check_value(self) -> None:
-        """
-        Проверяет если у клетки всего одно возможное значение (possible_values), то подставляет его в self.value.
-        """
-        if self.possible_values and len(self.possible_values) == 1:
-            self.value = self.possible_values[0]
-            self.possible_values = []
+        # Для каждой строки.
+        for row in self.pole:
+            value = [cell.value for cell in row if cell.value]
+            if len(value) != len(set(value)):
+                return True
 
-    def update_possible_values(self, args: list) -> None:
-        """
-        Обновляет self.possible_values, удаляя значения из переданного списка и вызывает check_value.
-        """
-        if self.possible_values:
-            self.possible_values = [value for value in self.possible_values if value not in args]
+        # Для каждого столбца
+        for col in range(self.pole_size):
+            value = [self.pole[row][col].value for row in range(self.pole_size) if self.pole[row][col].value]
+            if len(value) != len(set(value)):
+                return True
 
-        self.check_value()
+        # для каждой ячейки 3*3
+        list_cells = self.get_list_cells()
+        for i in list_cells:
+            value = [self.pole[row][col].value for row, col in i if self.pole[row][col].value]
+            if len(value) != len(set(value)):
+                return True
 
-    def __repr__(self):
-        return str(self.value) if self.value else " "
+        return False
 
 
-# Exception #############################
-class SudokuException(Exception):
-    pass
 
 
-class ValueCellSudokuException(SudokuException):
-    pass
 
-
-class SizeSudokuException(SudokuException):
-    pass
 
 
 if __name__ == "__main__":
@@ -165,17 +142,20 @@ if __name__ == "__main__":
 000928000
 409000105
 008400962"""
-#     test_sudoku2 = """00800900
-# 300605070
-# 701082000
-# 025000100
-# 037514028
-# 064038597
-# 000801309
-# 500060000
-# 003000086"""
+    test_sudoku2 = """520800640
+804672531
+003000026
+008000000
+000908070
+240060185
+380057490
+470306000
+910000003"""
     pole = Field(test_sudoku)
-    pole2 = Field(test_sudoku)
-    poles = [pole, pole2]
-    for pole in poles:
-        pole.fill()
+    pole2 = Field(test_sudoku2)
+    print(pole2.is_collision())
+
+    #
+    # poles = [pole, pole2]
+    # for pole in poles:
+    #     pole.fill()
