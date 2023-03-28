@@ -1,8 +1,11 @@
-# from __future__ import annotations
+from __future__ import annotations
 
 from pprint import pprint
 
 from cell import Cell
+
+
+# from sudoku_exception import *
 
 class Field:
     def __init__(self, strings: str):
@@ -44,7 +47,6 @@ class Field:
 
         return self.solve
 
-
     @staticmethod
     def get_list_cells() -> list:
         """ формируем координаты ячеек для поля 3*3 """
@@ -55,7 +57,7 @@ class Field:
                 list_cells.append(cells)
         return list_cells
 
-    def fill(self):
+    def fill(self, pole = self.pole):
         """Метод заполняет поле возможными значениями."""
 
         # формируем координаты ячеек для поля 3*3
@@ -123,10 +125,32 @@ class Field:
 
         return False
 
+    @staticmethod
+    def find_empty_cell(self, pole: list) -> tuple[int, int]:
+        for i in range(self.pole_size):
+            for j in range(self.pole_size):
+                if pole[i][j].value == 0:
+                    return (i, j)
 
+    def solve_sudoku(self):
 
+        # задача решена?
+        if self.is_solve():
+            return self.solve
 
+        # колизии есть?
+        if self.is_collision():
+            return False
 
+        result = False
+        # пробуем решить методом fill
+        temp_field = self.pole
+        # если решена возвращаем тру
+
+        # если не решена и нет колизий : запускаем вглубь
+
+    def solve(self):
+        self.
 
 
 if __name__ == "__main__":
@@ -144,7 +168,7 @@ if __name__ == "__main__":
 008400962"""
     test_sudoku2 = """520800640
 804672531
-003000026
+003000020
 008000000
 000908070
 240060185
@@ -155,7 +179,6 @@ if __name__ == "__main__":
     pole2 = Field(test_sudoku2)
     print(pole2.is_collision())
 
-    #
-    # poles = [pole, pole2]
-    # for pole in poles:
-    #     pole.fill()
+    poles = [pole, pole2]
+    for pole in poles:
+        pole.solve_sudoku()

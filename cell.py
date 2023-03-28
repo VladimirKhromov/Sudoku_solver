@@ -11,7 +11,7 @@ class Cell:
     """
 
     def __init__(self, value: int = 0) -> None:
-        self.value = self._check_value(value)
+        self.value = value  # self._check_value(value)
         self.possible_values = self._get_possible_values()
 
     @staticmethod
@@ -19,7 +19,7 @@ class Cell:
         if value in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9):
             return value
         else:
-            raise ValueCellSudokuException
+            raise ValueCellSudokuException("Ячейка получила неверное значение")
 
     def _get_possible_values(self) -> list:
         """
