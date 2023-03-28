@@ -5,8 +5,6 @@ from pprint import pprint
 from cell import Cell
 
 
-# from sudoku_exception import *
-
 class Field:
     def __init__(self, strings: str):
         self.pole = []  # само двухмерное поле с экземплярами класса Cell
@@ -57,46 +55,31 @@ class Field:
                 list_cells.append(cells)
         return list_cells
 
-    def fill(self, pole = self.pole):
+    def fill(self):
         """Метод заполняет поле возможными значениями."""
+        if self.is_collision():
+            return False
 
-        # формируем координаты ячеек для поля 3*3
-        list_cells = self.get_list_cells()
+        if not self.solve:
+            for i in range(self.pole_size):
+                for j in range(self.pole_size):
+                    cel = self.pole[i][j]
+                    if cel.value == 0:
+                        for possible_value in cel.possible_values:
+                            cel.value = possible_value
+                            if self.fill():
+                                return True
+                            else:
+                                cel.value = 0
+                        return False
+        return True
 
-        actual_len = len(self)
-        while not self.solve:
-            # step 1. циклом проверяет каждую строку, столбец и квадрат 3*3 на наличие уже отгаданных цифр
-            # и если у клетки остается только одна цифра, то она обновляется.
-
-            # Для каждой строки.
-            for row in self.pole:
-                value = [cell.value for cell in row if cell.value]
-                for cell in row:
-                    cell.update_possible_values(value)
-
-            # Для каждого столбца
-            for col in range(self.pole_size):
-                value = [self.pole[row][col].value for row in range(self.pole_size) if self.pole[row][col].value]
-                for row in self.pole:
-                    row[col].update_possible_values(value)
-
-            # для каждой ячейки 3*3
-            for i in list_cells:
-                value = [self.pole[row][col].value for row, col in i if self.pole[row][col].value]
-                for row, col in i:
-                    self.pole[row][col].update_possible_values(value)
-
-            # цикл останавливаеться если все разгадано
-            self.is_solve()
-
-            # цикл останавливаеться в случае если изменений не произошло
-            if len(self) == actual_len:
-                break
-            else:
-                actual_len = len(self)
-
-        self.show()
-        print(len(self))
+    def solve_sudoku(self):
+        if self.fill():
+            print("Решено!")
+            self.show()
+        else:
+            print("Невозможно решить")
 
     def is_collision(self):
         """
@@ -125,38 +108,8 @@ class Field:
 
         return False
 
-    @staticmethod
-    def find_empty_cell(self, pole: list) -> tuple[int, int]:
-        for i in range(self.pole_size):
-            for j in range(self.pole_size):
-                if pole[i][j].value == 0:
-                    return (i, j)
-
-    def solve_sudoku(self):
-
-        # задача решена?
-        if self.is_solve():
-            return self.solve
-
-        # колизии есть?
-        if self.is_collision():
-            return False
-
-        result = False
-        # пробуем решить методом fill
-        temp_field = self.pole
-        # если решена возвращаем тру
-
-        # если не решена и нет колизий : запускаем вглубь
-
-    def solve(self):
-        self.
-
 
 if __name__ == "__main__":
-    c = Cell()
-    c1 = Cell(4)
-    c2 = Cell(25)
     test_sudoku = """000000027
 050030609
 080070000
@@ -177,8 +130,6 @@ if __name__ == "__main__":
 910000003"""
     pole = Field(test_sudoku)
     pole2 = Field(test_sudoku2)
-    print(pole2.is_collision())
 
-    poles = [pole, pole2]
-    for pole in poles:
-        pole.solve_sudoku()
+    pole.solve_sudoku()
+    pole2.solve_sudoku()
