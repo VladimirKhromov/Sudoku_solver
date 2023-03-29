@@ -89,6 +89,7 @@ class Field:
             self.make_solve_string()
         else:
             self.solve_string = "Невозможно решить"
+        return self.solve_string
 
     def is_collision(self):
         """
@@ -116,10 +117,3 @@ class Field:
                 return True
 
         return False
-
-
-s = '527831649894672531163549827738415962651928374249763185382157496475396218916284753'
-f = Field(s)
-f.show()
-f.solve_sudoku()
-print(f.solve_string)
