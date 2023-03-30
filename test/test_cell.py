@@ -1,7 +1,7 @@
 import pytest
 
 from cell import Cell
-from sudoku_exception import ValueCellSudokuException
+from cell import ValueCellSudokuException
 
 
 # init #################

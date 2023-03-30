@@ -63,7 +63,3 @@ class SudokuException(Exception):
 
 class ValueCellSudokuException(SudokuException):
     pass
-
-
-class SizeSudokuException(SudokuException):
-    pass

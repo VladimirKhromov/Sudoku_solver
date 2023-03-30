@@ -5,17 +5,13 @@ from field import Field
 test_sudoku = []
 
 
-# with open(file="sudoku test 1.txt") as file:
-#     pass
-
-
 # init #################
 def test_init_field():
     field = Field("")
     assert field.pole == []
     assert field.strings == ""
     assert field.solve_string == ""
-    assert field.solve == False
+    assert field.solve is False
 
 
 @pytest.mark.parametrize("string, value00, value88",
@@ -45,3 +41,13 @@ def test_solve(string, solve_string):
     field = Field(string)
     field.solve_sudoku()
     assert field.solve_string == solve_string
+
+
+@pytest.mark.parametrize("string",
+                         ['101000000000000000000000000000000000000000000000000000000000000000000000000000000',
+                          '123456789456789123789123456214365897365897214896214365531642978642978531978531642',
+                          ])
+def test_unsolvable_sudoku(string):
+    field = Field(string)
+    field.solve_sudoku()
+    assert field.solve_string == "Impossible to decide"
