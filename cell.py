@@ -1,6 +1,3 @@
-from sudoku_exception import ValueCellSudokuException
-
-
 class Cell:
     """
     A class representing a sudoku cell.
@@ -23,33 +20,50 @@ class Cell:
 
     def _get_possible_values(self) -> list:
         """
-        Возвращает список возможных значений клетки, если само значение не определено.
-        Если Value определено, то возвращает пустой список.
+        Returns a list of possible cell values if the value is not defined (equals 0).
+        If the value is defined, it returns an empty list.
         """
+
         if not self.value:
             possible_values = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-        else:
+        else:  # the value is defined
             possible_values = []
         return possible_values
 
     def update_cell_value(self) -> None:
         """
-        Проверяет если у клетки всего одно возможное значение (possible_values), то оно подставляется в self.value.
+        Check possible cell values.
+        If possible_values have one value the cell value is updated.
         """
         if self.possible_values and len(self.possible_values) == 1:
             self.value = self.possible_values[0]
             self.possible_values = []
 
-    def update_possible_values(self, args: list) -> None:
+    def update_possible_values(self, remove_values: list) -> None:
         """
-        Обновляет self.possible_values, удаляя значения из переданного списка и вызывает check_value.
+        Remove values from self.possible_values.
         """
-        for arg in args:
-            self._check_value(arg)
+        for remove_value in remove_values:
+            self._check_value(remove_value)
         if self.possible_values:
-            self.possible_values = [value for value in self.possible_values if value not in args]
+            self.possible_values = [value for value in self.possible_values
+                                    if value not in remove_values]
 
         self.update_cell_value()
 
     def __repr__(self):
         return str(self.value) if self.value else " "
+
+
+# Exception #########
+
+class SudokuException(Exception):
+    pass
+
+
+class ValueCellSudokuException(SudokuException):
+    pass
+
+
+class SizeSudokuException(SudokuException):
+    pass
